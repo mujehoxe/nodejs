@@ -220,15 +220,6 @@ while (notDone) {
   }
 }
 
-for (
-  var random = Math.random();
-  Math.ceil(Math.random() * 6) === 6;
-  random = Math.random()
-) {
-  console.log('**', random);
-}
-console.log('***yay');
-
 // for(kkdsjfsdlk) => while
 // while (kdlsgkhdslk) =x> for
 
@@ -237,7 +228,108 @@ for (var i = 1; i < products.length; i++) {
 }
 console.log(products);
 
-for (var i = 0; i < products.length; i++) {
-  if (products[i].quantity <= 10) products[i].price *= 0.6;
+for (var i = 1; i < products.length; i++) {
+  if (products[i].quantity <= 10) products[i].price -= 500;
 }
 console.log(products);
+
+var notDone = true;
+while (notDone) {
+  if (Math.ceil(Math.random() * 6) === 6) {
+    console.log('yay');
+    notDone = false;
+  } else {
+    console.log('oh no');
+  }
+}
+
+for (var i = 1; i < products.length; i++) {
+  if (products[i].quantity <= 10) products[i].price -= 500;
+}
+console.log(products);
+
+console.log('something');
+
+for (var i = 1; i < products.length; i++) {
+  if (products[i].quantity <= 10) products[i].price -= 500;
+}
+console.log(products);
+
+function saleOnAlmostEndingProducts() {
+  for (var i = 1; i < products.length; i++) {
+    if (products[i].quantity <= 10) products[i].price -= 500;
+  }
+}
+
+console.log('before function call', products);
+saleOnAlmostEndingProducts();
+console.log('after function call', products);
+saleOnAlmostEndingProducts();
+saleOnAlmostEndingProducts();
+saleOnAlmostEndingProducts();
+console.log('something');
+saleOnAlmostEndingProducts();
+
+// const readline = require('readline');
+
+// const rl = readline.createInterface({
+//   input: process.stdin,
+//   output: process.stdout,
+// });
+
+// rl.input.on('keypress', handleKeyPress);
+
+// function handleKeyPress(key, data) {
+//   console.log(`Key pressed: ${key}`);
+
+//   if (key === 'q') {
+//     console.log('Exiting...');
+//     process.exit();
+//   }
+// }
+
+function add(a, b) {
+  return a + b;
+}
+
+console.log(add(5, 10), true, 6, [1, 2]);
+
+function positive(a) {
+  if (a >= 0) return true;
+  else return false;
+}
+
+console.log(positive(6));
+console.log(positive(7));
+console.log(positive(-7));
+
+var fs = require('fs');
+
+fs.readdir('.', {encoding: 'utf-8'}, (err, filesNames) => {
+  for (var i = 0; i < filesNames.length; i++)
+    if (filesNames[i].endsWith('.txt'))
+      fs.readFile(filesNames[i], {encoding: 'utf-8'}, (err, file) => {
+        if (err != undefined) console.log(err);
+        else console.log(file);
+      });
+});
+
+// ex1
+// lenght t3 chaine de charachtere utilisant un for/while loop
+// lenght t3 array utilisant un for/while loop
+
+// ex2
+// function getStingLenghtWhile(str)
+// function getStingLenghtFor(str)
+// function getArrayLenghtFor(arr)
+// function getArrayLenghtWhile(arr)
+// getStingLenghtWhile('sdfadsf')
+// getStingLenghtWhile('')
+// getStingLenghtFor('')
+// getArrayLenghtFor([1,2,3])
+// getArrayLenghtFor([])
+// getArrayLenghtWhile([])
+
+// ex3
+// getArrayLenghtWhile('dsgds')
+// getStingLenghtWhile([1,2,3])
