@@ -16,9 +16,10 @@ var users = [
   {id: 1, username: 'ahmed', email: 'ahmed@ghldsk.dkg', age: 25},
   {id: 2, username: 'mostapha', email: 'mostapha@ghldsk.dkg', age: 31},
 ];
+
 function handleGetRequests(req, res) {
   if (req.url === '/') {
-    handleGetIndex(res);
+    handleGetFile(res, 'index.html');
   }
   if (req.url === '/favicon.ico') {
     handleGetFavIcon(res);
@@ -26,13 +27,20 @@ function handleGetRequests(req, res) {
   if (req.url === '/users') {
     handleGetUsers(res);
   }
+  if (req.url === '/add') {
+    handleGetFile(res, 'add.html');
+  }
 }
 
 function handlePostRequests(req, res) {
   if (req.url === '/users') {
     handlePostUser(req, res);
   }
+  if (req.url === '/add') {
+    handlePostAdd(req, res);
+  }
 }
+
 const querystring = require('querystring');
 
 function handlePostUser(req, res) {
@@ -46,9 +54,24 @@ function handlePostUser(req, res) {
   });
 }
 
-function handleGetIndex(res) {
+function handlePostAdd(req, res) {
+  var body = '';
+
+  req.on('readable', function () {
+    body += req.read();
+    console.log(JSON.parse(body));
+    var reqbody = JSON.parse(body);
+
+    var result = parseFloat(reqbody.first) + parseFloat(reqbody.second);
+    res.writeHead(200, {'Content-Type': 'application/json'});
+    console.log(result);
+    res.end(JSON.stringify({result: result}));
+  });
+}
+
+function handleGetFile(res, fileName) {
   res.writeHead(200, {'Content-Type': 'text/html'});
-  var file = fs.readFileSync('./index.html');
+  var file = fs.readFileSync('./' + fileName);
 
   res.end(file);
 }
