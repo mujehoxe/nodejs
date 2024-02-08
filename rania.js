@@ -2,6 +2,7 @@ const fs = require('fs');
 const express = require('express');
 const app = express();
 
+app.use(express.json());
 const port = 5000;
 
 var users = [
@@ -34,3 +35,11 @@ app.get('/add', (req, res) => {
   console.log(__dirname);
   res.sendFile(__dirname + '/add.html');
 });
+
+app.post('/add', (req, res) => {
+  console.log(req.body);
+  var somme = parseFloat(req.body.first) + parseFloat(req.body.second);
+  res.send({result: somme});
+});
+res.writeHead(200, {'Content-type': 'application/json'});
+res.send({result: somme});

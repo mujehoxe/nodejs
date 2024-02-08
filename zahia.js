@@ -1,7 +1,9 @@
+const fs = require('fs');
 const express = require('express');
 const app = express();
-const port = 3000;
-const fs = require('fs');
+
+const port = 4000;
+
 var users = [
   {id: 1, username: 'ahmed', email: 'ahmed@ghldsk.dkg', age: 25},
   {id: 2, username: 'mostapha', email: 'mostapha@ghldsk.dkg', age: 31},
@@ -9,6 +11,10 @@ var users = [
 
 app.get('/', (req, res) => {
   res.send('Hello World!');
+});
+
+app.listen(port, () => {
+  console.log(`Example app listening on port ${port}`);
 });
 
 app.get('/users', (req, res) => {
@@ -26,15 +32,9 @@ app.get('/favicon.ico', (req, res) => {
 
 app.get('/add', (req, res) => {
   console.log(__dirname);
-  res.sendFile('add.html', {root: __dirname});
+  res.sendFile(__dirname + '/add.html');
 });
-app.use(express.json());
 app.post('/add', (req, res) => {
   console.log(req.body);
-
-  res.writeHead(200, {'Content-type': 'application/json'});
-  res.send({result: somme});
-});
-app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`);
+  res.send();
 });
