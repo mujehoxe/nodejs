@@ -29,12 +29,14 @@ app.get('/add', (req, res) => {
   res.sendFile('add.html', {root: __dirname});
 });
 app.use(express.json());
+
 app.post('/add', (req, res) => {
   console.log(req.body);
 
   res.writeHead(200, {'Content-type': 'application/json'});
   res.send({result: somme});
 });
+
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
 });

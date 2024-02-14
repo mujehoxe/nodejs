@@ -3,6 +3,7 @@ const express = require('express');
 const app = express();
 
 const port = 4000;
+app.use(express.urlencoded({extended: true}));
 
 var users = [
   {id: 1, username: 'ahmed', email: 'ahmed@ghldsk.dkg', age: 25},
@@ -10,7 +11,7 @@ var users = [
 ];
 
 app.get('/', (req, res) => {
-  res.send('Hello World!');
+  res.sendFile(__dirname + '/index.html');
 });
 
 app.listen(port, () => {
@@ -18,9 +19,10 @@ app.listen(port, () => {
 });
 
 app.get('/users', (req, res) => {
-  res.writeHead(200, {'Content-Type': 'application/json'});
-
-  res.end(JSON.stringify(users));
+  // res.writeHead(200, {'Content-Type': 'application/json'});
+  console.log(__dirname);
+  res.sendFile(__dirname + '/zahia.json');
+  // res.end(JSON.stringify(users));
 });
 
 app.get('/favicon.ico', (req, res) => {
@@ -34,7 +36,21 @@ app.get('/add', (req, res) => {
   console.log(__dirname);
   res.sendFile(__dirname + '/add.html');
 });
+
 app.post('/add', (req, res) => {
   console.log(req.body);
   res.send();
+});
+
+app.post('/users', (req, res) => {
+  console.log(req.body);
+  // users.push(req.body);
+  fs.readFile('zahia.json', {encoding: 'utf-8'}, (err, data) => {
+    if (err) {
+      console.log(err);
+      return;
+    }
+    console.log(data);
+  });
+  res.send('hellooooo');
 });
