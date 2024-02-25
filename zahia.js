@@ -3,6 +3,7 @@ const express = require('express');
 const app = express();
 
 const port = 4000;
+app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 
 var users = [
@@ -10,12 +11,12 @@ var users = [
   {id: 2, username: 'mostapha', email: 'mostapha@ghldsk.dkg', age: 31},
 ];
 
-app.get('/', (req, res) => {
-  res.sendFile(__dirname + '/index.html');
-});
-
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
+});
+
+app.get('/', (req, res) => {
+  res.sendFile(__dirname + '/index.html');
 });
 
 app.get('/users', (req, res) => {
@@ -27,8 +28,7 @@ app.get('/users', (req, res) => {
 
 app.get('/favicon.ico', (req, res) => {
   res.writeHead(200, {'Content-Type': 'image/png'});
-  var img = fs.readFileSync('./black.png');
-
+  const img = fs.readFileSync('./black.png');
   res.end(img, 'binary');
 });
 
@@ -43,14 +43,52 @@ app.post('/add', (req, res) => {
 });
 
 app.post('/users', (req, res) => {
-  console.log(req.body);
-  // users.push(req.body);
+  req.body.age = parseInt(req.body.age);
   fs.readFile('zahia.json', {encoding: 'utf-8'}, (err, data) => {
     if (err) {
       console.log(err);
+      res.sendStatus(500);
       return;
     }
-    console.log(data);
+
+    const users = JSON.parse(data);
+    req.body.id = users.length + 1;
+    users.push(req.body);
+
+    fs.writeFile(
+      'zahia.json',
+      JSON.stringify(users),
+      {encoding: 'utf-8'},
+      err => {
+        if (err) {
+          res.sendStatus(500);
+          return;
+        }
+        res.send(req.body);
+      },
+    );
   });
-  res.send('hellooooo');
+});
+
+app.get('/users/:id', (req, res) => {
+  req.params.id = parseInt(req.params.id);
+  console.log(req.params);
+
+  fs.readFile('zahia.json', {encoding: 'utf-8'}, (err, data) => {
+    if (err) {
+      console.log(err);
+      res.sendStatus(500);
+      return;
+    }
+
+    const users = JSON.parse(data);
+    for (let i = 0; i < users.length; i++) {
+      if (req.params.id == users[i].id) {
+        res.send(users[i]);
+        return;
+      }
+    }
+
+    res.sendStatus(404);
+  });
 });

@@ -7,11 +7,6 @@ app.use(express.urlencoded({extended: true}));
 
 const port = 5000;
 
-var users = [
-  {id: 1, username: 'ahmed', email: 'ahmed@ghldsk.dkg', age: 25},
-  {id: 2, username: 'mostapha', email: 'mostapha@ghldsk.dkg', age: 31},
-];
-
 app.get('/', (req, res) => {
   res.sendFile(__dirname + '/index.html');
 });
@@ -46,18 +41,55 @@ app.post('/add', (req, res) => {
 
 app.post('/users', (req, res) => {
   console.log(req.body);
+  req.body.age = Number(req.body.age);
+
   fs.readFile('rania.json', {encoding: 'utf-8'}, (err, data) => {
     if (err) {
       console.log(err);
+      res.sendStatus(500);
+      return;
     }
-    console.log('***', data);
+    const users = JSON.parse(data);
+    req.body.id = users.length + 1;
+    users.push(req.body);
+    fs.writeFile(
+      'rania.json',
+      JSON.stringify(users),
+      {encoding: 'utf-8'},
+      err => {
+        if (err) {
+          console.log(err);
+          res.sendStatus(500);
+          return;
+        }
+        res.send(req.body);
+      },
+    );
   });
-
-  users.push(req.body);
-  res.send(users);
-  console.log(users);
 });
 
 app.get('/users', (req, res) => {
   res.sendFile(__dirname + '/rania.json');
+});
+
+app.get('/users/:id', (req, res) => {
+  fs.readFile('rania.json', {encoding: 'utf-8'}, (err, data) => {
+    if (err) {
+      console.log(err);
+      res.sendStatus(500);
+      return;
+    }
+
+    req.params.id = Number(req.params.id);
+    const users = JSON.parse(data);
+
+    for (var i = 0; i < users.length; i++) {
+      if (req.params.id == users[i].id) {
+        res.send(users[i]);
+        return;
+      }
+    }
+
+    res.sendStatus(404);
+  });
 });
