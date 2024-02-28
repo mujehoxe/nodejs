@@ -6,32 +6,36 @@ app.use(express.urlencoded({extended: true}));
 
 const port = 8000;
 
-var users = [
-  {id: 1, username: 'ahmed', email: 'ahmed@ghldsk.dkg', age: 25},
-  {id: 2, username: 'mostapha', email: 'mostapha@ghldsk.dkg', age: 31},
-];
-
 app.get('/', (req, res) => {
   res.sendFile(__dirname + '/index.html');
 });
 
 app.get('/users', (req, res) => {
-  console.log(__dirname);
   res.sendFile(__dirname + '/oumaima.json');
-  //res.sendFile(__dirname + '/index.html');
 });
 
 app.post('/users', (req, res) => {
-  console.log(req.body);
+  const newUser = req.body;
   fs.readFile('oumaima.json', {encoding: 'utf8'}, (err, data) => {
     if (err) {
       console.log(err);
+      res.sendStatus(500);
+      return;
     }
-    console.log('***', data);
+
+    const users = JSON.parse(data);
+    newUser.id = users.length + 1;
+    newUser.age = parseInt(newUser.age);
+    users.push(newUser);
+    fs.writeFile('oumaima.json', JSON.stringify(users), err => {
+      if (err) {
+        console.error(err);
+        res.sendStatus(500);
+        return;
+      }
+      res.send(newUser);
+    });
   });
-  // users.push(req.body);
-  // console.log(users);
-  res.sendStatus(200);
 });
 
 app.listen(port, () => {
@@ -58,4 +62,27 @@ app.get('/add', (req, res) => {
 
 app.post('/add', (req, res) => {
   console.log(req.body);
+});
+
+app.get('/users/:id', (req, res) => {
+  console.log(req.params);
+
+  fs.readFile('oumaima.json', {encoding: 'utf8'}, function (err, data) {
+    if (err) {
+      console.log(err);
+      res.sendStatus(500);
+      return;
+    }
+
+    const users = JSON.parse(data);
+
+    for (let i = 0; i < users.length; i++) {
+      if (users[i].id == parseInt(req.params.id)) {
+        res.send(users[i]);
+        return;
+      }
+    }
+
+    res.sendStatus(404);
+  });
 });
