@@ -73,23 +73,47 @@ app.get('/users', (req, res) => {
 });
 
 app.get('/users/:id', (req, res) => {
-  fs.readFile('rania.json', {encoding: 'utf-8'}, (err, data) => {
+  fs.readFile('rania.json', {encoding: 'utf-8'}, function (err, data) {
     if (err) {
       console.log(err);
       res.sendStatus(500);
       return;
     }
 
-    req.params.id = Number(req.params.id);
     const users = JSON.parse(data);
 
     for (var i = 0; i < users.length; i++) {
-      if (req.params.id == users[i].id) {
+      if (Number(req.params.id) == users[i].id) {
         res.send(users[i]);
         return;
       }
     }
 
     res.sendStatus(404);
+  });
+});
+
+app.get('/user', (req, res) => {
+  console.log(req.query);
+  fs.readFile('rania.json', {encoding: 'utf-8'}, function (err, data) {
+    if (err) {
+      console.log(err);
+      res.sendStatus(500);
+      return;
+    }
+
+    const users = JSON.parse(data);
+    const usersbyname = [];
+
+    for (var i = 0; i < users.length; i++) {
+      if (req.query.username == users[i].username) {
+        usersbyname.push(users[i]);
+      }
+    }
+    if (usersbyname.length != 0) {
+      res.send(usersbyname);
+    } else {
+      res.sendStatus(404);
+    }
   });
 });
