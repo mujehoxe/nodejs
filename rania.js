@@ -93,27 +93,59 @@ app.get('/users/:id', (req, res) => {
   });
 });
 
-app.get('/user', (req, res) => {
-  console.log(req.query);
-  fs.readFile('rania.json', {encoding: 'utf-8'}, function (err, data) {
+app.get('/user', function (req, res) {
+  fs.readFile('rania.json', {encoding: 'utf-8'}, (err, data) => {
     if (err) {
       console.log(err);
       res.sendStatus(500);
       return;
     }
 
+    req.query.age = parseInt(req.query.age);
     const users = JSON.parse(data);
-    const usersbyname = [];
-
-    for (var i = 0; i < users.length; i++) {
-      if (req.query.username == users[i].username) {
-        usersbyname.push(users[i]);
+    var foundUsers = [];
+    for (let i = 0; i < users.length; i++) {
+      if (
+        req.query.username == users[i].username &&
+        req.query.age == users[i].age
+      ) {
+        foundUsers.push(users[i]);
+      } else if (!req.query.username && req.query.age == users[i].age) {
+        foundUsers.push(users[i]);
+      } else if (!req.query.age && req.query.username == users[i].username) {
+        foundUsers.push(users[i]);
       }
     }
-    if (usersbyname.length != 0) {
-      res.send(usersbyname);
-    } else {
-      res.sendStatus(404);
+
+    if (foundUsers.length == 0) res.sendStatus(404);
+    else res.send(foundUsers);
+  });
+});
+
+app.get('/ageRange', function (req, res) {
+  fs.readFile('rania.json', {encoding: 'utf-8'}, (err, data) => {
+    if (err) {
+      console.log(err);
+      res.sendStatus(500);
+      return;
     }
+    req.query.ageStart = parseInt(req.query.ageStart);
+    req.query.ageEnd = parseInt(req.query.ageEnd);
+    const users = JSON.parse(data);
+    var UsersbyRange = [];
+    for (let i = 0; i < users.length; i++) {
+      if (
+        req.query.ageStart <= users[i].age &&
+        req.query.ageEnd >= users[i].age
+      ) {
+        UsersbyRange.push(users[i]);
+      } else if (req.query.ageStart <= users[i].age && !req.query.ageEnd) {
+        UsersbyRange.push(users[i]);
+      } else if (!req.query.ageStart && req.query.ageEnd >= users[i].age) {
+        UsersbyRange.push(users[i]);
+      }
+    }
+    if (UsersbyRange.length == 0) res.sendStatus(404);
+    else res.send(UsersbyRange);
   });
 });

@@ -88,23 +88,33 @@ app.get('/users/:id', (req, res) => {
 });
 
 app.get('/user', function (req, res) {
-  fs.readFile('oumaima.json', {encoding: 'utf8'}, function (err, data) {
-    if (err) {
-      console.log(err);
-      res.sendStatus(500);
-      return;
+  let data = '';
+  try {
+    data = fs.readFileSync('oumaima.json', {encoding: 'utf8'});
+  } catch (err) {
+    console.log(err);
+    res.sendStatus(500);
+    return;
+  }
+
+  const users = JSON.parse(data);
+  const foundUsers = [];
+  for (let i = 0; i < users.length; i++) {
+    if (
+      req.query.username == users[i].username &&
+      req.query.age == users[i].age
+    ) {
+      foundUsers.push(users[i]);
+    } else if (!req.query.username && req.query.age == users[i].age) {
+      foundUsers.push(users[i]);
+    } else if (!req.query.age && req.query.username == users[i].username) {
+      foundUsers.push(users[i]);
     }
-    const users = JSON.parse(data);
-    const usersbyname = [];
-    for (let i = 0; i < users.length; i++) {
-      if (users[i].username == req.query.username) {
-        usersbyname.push(users[i]);
-      }
-    }
-    if (usersbyname.length == 0) {
-      res.sendStatus(404);
-    } else {
-      res.send(usersbyname);
-    }
-  });
+  }
+
+  if (foundUsers.length == 0) {
+    res.sendStatus(404);
+  } else {
+    res.send(foundUsers);
+  }
 });

@@ -2,7 +2,7 @@ const fs = require('fs');
 const express = require('express');
 const app = express();
 
-const port = 4000;
+const port = 4001;
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 
@@ -70,11 +70,10 @@ app.post('/users', (req, res) => {
   });
 });
 
-app.get('/users/:id', (req, res) => {
+app.get('/users/:id', function (req, res) {
   req.params.id = parseInt(req.params.id);
-  console.log(req.params);
 
-  fs.readFile('zahia.json', {encoding: 'utf-8'}, (err, data) => {
+  fs.readFile('zahia.json', {encoding: 'utf-8'}, function (err, data) {
     if (err) {
       console.log(err);
       res.sendStatus(500);
@@ -82,6 +81,7 @@ app.get('/users/:id', (req, res) => {
     }
 
     const users = JSON.parse(data);
+
     for (let i = 0; i < users.length; i++) {
       if (req.params.id == users[i].id) {
         res.send(users[i]);
@@ -90,5 +90,64 @@ app.get('/users/:id', (req, res) => {
     }
 
     res.sendStatus(404);
+  });
+});
+
+app.get('/user', function (req, res) {
+  fs.readFile('zahia.json', {encoding: 'utf-8'}, (err, data) => {
+    if (err) {
+      console.log(err);
+      res.sendStatus(500);
+      return;
+    }
+
+    req.query.age = parseInt(req.query.age);
+    const users = JSON.parse(data);
+    var foundUsers = [];
+    for (let i = 0; i < users.length; i++) {
+      if (
+        req.query.username == users[i].username &&
+        req.query.age == users[i].age
+      ) {
+        foundUsers.push(users[i]);
+      } else if (!req.query.username && req.query.age == users[i].age) {
+        foundUsers.push(users[i]);
+      } else if (!req.query.age && req.query.username == users[i].username) {
+        foundUsers.push(users[i]);
+      }
+    }
+
+    if (foundUsers.length == 0) res.sendStatus(404);
+    else res.send(foundUsers);
+  });
+});
+
+app.get('/rangeage', function (req, res) {
+  fs.readFile('zahia.json', {encoding: 'utf-8'}, (err, data) => {
+    if (err) {
+      console.log(err);
+      res.sendStatus(500);
+      return;
+    }
+
+    req.query.ageStart = parseInt(req.query.ageStart);
+    req.query.ageEnd = parseInt(req.query.ageEnd);
+    const users = JSON.parse(data);
+    var foundUsers = [];
+    for (let i = 0; i < users.length; i++) {
+      if (
+        req.query.ageStart <= users[i].age &&
+        users[i].age <= req.query.ageEnd
+      ) {
+        foundUsers.push(users[i]);
+      } else if (!req.query.ageEnd && req.query.ageStart <= users[i].age) {
+        foundUsers.push(users[i]);
+      } else if (!req.query.ageStart && users[i].age <= req.query.ageEnd) {
+        foundUsers.push(users[i]);
+      }
+    }
+
+    if (foundUsers.length == 0) res.sendStatus(404);
+    else res.send(foundUsers);
   });
 });
