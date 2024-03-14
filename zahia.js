@@ -123,6 +123,18 @@ app.get('/user', function (req, res) {
 });
 
 app.get('/rangeage', function (req, res) {
+  req.query.ageStart = parseInt(req.query.ageStart);
+  req.query.ageEnd = parseInt(req.query.ageEnd);
+
+  if (
+    req.query.ageStart &&
+    req.query.ageEnd &&
+    req.query.ageStart > req.query.ageEnd
+  ) {
+    res.status(400).send('ageStart should be less then ageEnd');
+    return;
+  }
+
   fs.readFile('zahia.json', {encoding: 'utf-8'}, (err, data) => {
     if (err) {
       console.log(err);
@@ -130,24 +142,32 @@ app.get('/rangeage', function (req, res) {
       return;
     }
 
-    req.query.ageStart = parseInt(req.query.ageStart);
-    req.query.ageEnd = parseInt(req.query.ageEnd);
     const users = JSON.parse(data);
-    var foundUsers = [];
-    for (let i = 0; i < users.length; i++) {
-      if (
-        req.query.ageStart <= users[i].age &&
-        users[i].age <= req.query.ageEnd
-      ) {
-        foundUsers.push(users[i]);
-      } else if (!req.query.ageEnd && req.query.ageStart <= users[i].age) {
-        foundUsers.push(users[i]);
-      } else if (!req.query.ageStart && users[i].age <= req.query.ageEnd) {
-        foundUsers.push(users[i]);
-      }
-    }
+    var foundUsers = findUsersInAgeRange(
+      users,
+      req.query.ageStart,
+      req.query.ageEnd,
+    );
 
     if (foundUsers.length == 0) res.sendStatus(404);
     else res.send(foundUsers);
   });
 });
+
+function findUsersInAgeRange(users, ageStart, ageEnd) {
+  var foundUsers = [];
+  for (let i = 0; i < users.length; i++) {
+    if (isUserAgeBetween(users[i].age, ageStart, ageEnd)) {
+      foundUsers.push(users[i]);
+    } else if (!ageEnd && ageStart <= users[i].age) {
+      foundUsers.push(users[i]);
+    } else if (!ageStart && users[i].age <= ageEnd) {
+      foundUsers.push(users[i]);
+    }
+  }
+  return foundUsers;
+}
+
+function isUserAgeBetween(age, ageStart, ageEnd) {
+  return ageStart <= age && age <= ageEnd;
+}

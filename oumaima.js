@@ -4,7 +4,7 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 
-const port = 8000;
+const port = 8001;
 
 app.get('/', (req, res) => {
   res.sendFile(__dirname + '/index.html');
@@ -117,4 +117,35 @@ app.get('/user', function (req, res) {
   } else {
     res.send(foundUsers);
   }
+});
+
+app.get('/rangeage', function (req, res) {
+  req.query.ageStart = parseInt(req.query.ageStart);
+  req.query.ageEnd = parseInt(req.query.ageEnd);
+  if (req.query.ageStart <= req.query.ageEnd) {
+    fs.readFile('oumaima.json', {encoding: 'utf-8'}, (err, data) => {
+      if (err) {
+        console.log(err);
+        res.sendStatus(500);
+        return;
+      }
+      const users = JSON.parse(data);
+      var foundUsers = [];
+      for (let i = 0; i < users.length; i++) {
+        if (
+          req.query.ageStart <= users[i].age &&
+          users[i].age <= req.query.ageEnd
+        ) {
+          foundUsers.push(users[i]);
+        } else if (!req.query.ageEnd && req.query.ageStart <= users[i].age) {
+          foundUsers.push(users[i]);
+        } else if (!req.query.ageStart && users[i].age <= req.query.ageEnd) {
+          foundUsers.push(users[i]);
+        }
+      }
+
+      if (foundUsers.length == 0) res.sendStatus(404);
+      else res.send(foundUsers);
+    });
+  } else res.status(400).send('ageStart should be less then ageEnd');
 });

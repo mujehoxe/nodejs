@@ -123,29 +123,32 @@ app.get('/user', function (req, res) {
 });
 
 app.get('/ageRange', function (req, res) {
-  fs.readFile('rania.json', {encoding: 'utf-8'}, (err, data) => {
-    if (err) {
-      console.log(err);
-      res.sendStatus(500);
-      return;
-    }
-    req.query.ageStart = parseInt(req.query.ageStart);
-    req.query.ageEnd = parseInt(req.query.ageEnd);
-    const users = JSON.parse(data);
-    var UsersbyRange = [];
-    for (let i = 0; i < users.length; i++) {
-      if (
-        req.query.ageStart <= users[i].age &&
-        req.query.ageEnd >= users[i].age
-      ) {
-        UsersbyRange.push(users[i]);
-      } else if (req.query.ageStart <= users[i].age && !req.query.ageEnd) {
-        UsersbyRange.push(users[i]);
-      } else if (!req.query.ageStart && req.query.ageEnd >= users[i].age) {
-        UsersbyRange.push(users[i]);
+  req.query.ageStart = parseInt(req.query.ageStart);
+  req.query.ageEnd = parseInt(req.query.ageEnd);
+  if (req.query.ageStart <= req.query.ageEnd) {
+    fs.readFile('rania.json', {encoding: 'utf-8'}, (err, data) => {
+      if (err) {
+        console.log(err);
+        res.sendStatus(500);
+        return;
       }
-    }
-    if (UsersbyRange.length == 0) res.sendStatus(404);
-    else res.send(UsersbyRange);
-  });
+
+      const users = JSON.parse(data);
+      var UsersbyRange = [];
+      for (let i = 0; i < users.length; i++) {
+        if (
+          req.query.ageStart <= users[i].age &&
+          req.query.ageEnd >= users[i].age
+        ) {
+          UsersbyRange.push(users[i]);
+        } else if (req.query.ageStart <= users[i].age && !req.query.ageEnd) {
+          UsersbyRange.push(users[i]);
+        } else if (!req.query.ageStart && req.query.ageEnd >= users[i].age) {
+          UsersbyRange.push(users[i]);
+        }
+      }
+      if (UsersbyRange.length == 0) res.sendStatus(404);
+      else res.send(UsersbyRange);
+    });
+  } else res.status(400).send('ageStart should be less then ageEnd');
 });
