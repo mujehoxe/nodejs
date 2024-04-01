@@ -134,6 +134,7 @@ app.get('/ageRange', function (req, res) {
       }
 
       const users = JSON.parse(data);
+
       var UsersbyRange = [];
       for (let i = 0; i < users.length; i++) {
         if (
@@ -147,6 +148,7 @@ app.get('/ageRange', function (req, res) {
           UsersbyRange.push(users[i]);
         }
       }
+
       if (UsersbyRange.length == 0) res.sendStatus(404);
       else res.send(UsersbyRange);
     });

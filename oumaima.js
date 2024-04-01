@@ -14,7 +14,43 @@ app.get('/users', (req, res) => {
   res.sendFile(__dirname + '/oumaima.json');
 });
 
-app.post('/users', (req, res) => {
+const XLSX = require('xlsx');
+let lastId = 12;
+app.post('/usersXlsx', (req, res) => {
+  const newUser = req.body;
+  newUser.age = parseInt(newUser.age);
+  if (newUser.age === NaN) {
+    console.log('wrong data');
+    res.status(400).send();
+    return;
+  }
+  let workbook;
+  try {
+    workbook = XLSX.readFile('oumaima.xlsx', {}, () => {});
+  } catch (e) {
+    console.log(e);
+    res.status(500).send();
+    return;
+  }
+  const firstSheetName = workbook.SheetNames[0];
+  const firstSheet = workbook.Sheets[firstSheetName];
+  lastId += 1;
+  XLSX.utils.sheet_add_aoa(
+    firstSheet,
+    [[lastId, newUser.username, newUser.email, newUser.age]],
+    {origin: -1},
+  );
+  try {
+    XLSX.writeFile(workbook, 'oumaima.xlsx');
+  } catch (e) {
+    console.log(e);
+    res.status(500).send();
+    return;
+  }
+  res.sendStatus(200);
+});
+
+app.post('/usersJson', (req, res) => {
   const newUser = req.body;
   fs.readFile('oumaima.json', {encoding: 'utf8'}, (err, data) => {
     if (err) {
