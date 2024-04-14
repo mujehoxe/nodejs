@@ -10,34 +10,36 @@ app.get('/', (req, res) => {
   res.sendFile(__dirname + '/index.html');
 });
 
-app.get('/users', (req, res) => {
+app.get('/usersJson', (req, res) => {
   res.sendFile(__dirname + '/oumaima.json');
 });
 
 const XLSX = require('xlsx');
 let lastId = 12;
+
 app.post('/usersXlsx', (req, res) => {
   const newUser = req.body;
   newUser.age = parseInt(newUser.age);
   if (newUser.age === NaN) {
     console.log('wrong data');
-    res.status(400).send();
+    res.status(400).send('age has to be a number');
     return;
   }
   let workbook;
   try {
-    workbook = XLSX.readFile('oumaima.xlsx', {}, () => {});
-  } catch (e) {
-    console.log(e);
+    workbook = XLSX.readFile('oumaima.xlsx', {});
+  } catch (err) {
+    console.log(err);
     res.status(500).send();
     return;
   }
   const firstSheetName = workbook.SheetNames[0];
   const firstSheet = workbook.Sheets[firstSheetName];
   lastId += 1;
+  newUser.id = lastId;
   XLSX.utils.sheet_add_aoa(
     firstSheet,
-    [[lastId, newUser.username, newUser.email, newUser.age]],
+    [[newUser.id, newUser.username, newUser.email, newUser.age]],
     {origin: -1},
   );
   try {
@@ -47,7 +49,23 @@ app.post('/usersXlsx', (req, res) => {
     res.status(500).send();
     return;
   }
-  res.sendStatus(200);
+  res.sendStatus(200).send(newUser);
+});
+
+app.get('/usersXlsx', (req, res) => {
+  let workbook;
+
+  try {
+    workbook = XLSX.readFile('oumaima.xlsx', {});
+  } catch (err) {
+    console.log(err);
+    res.sendStatus(500);
+    return;
+  }
+  const firstSheetName = workbook.SheetNames[0];
+  const firstSheet = workbook.Sheets[firstSheetName];
+  const users = XLSX.utils.sheet_to_json(firstSheet, {range: 'B2:E14'});
+  res.send(users);
 });
 
 app.post('/usersJson', (req, res) => {
