@@ -4,10 +4,57 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 
+const sqlite3 = require('sqlite3').verbose();
+
+const db = new sqlite3.Database('./oumaima.db', err => {
+  if (err) {
+    console.log(err);
+    return;
+  }
+  console.log('base de donnée crééer');
+});
+
+db.run(
+  `create table IF NOT EXISTS user (id integer primary key autoincrement, username text, email text, age integer)`,
+  err => {
+    if (err) {
+      console.log(err);
+      return;
+    }
+
+    console.log('table crééer');
+  },
+);
+
+app.post('/usersqllite3', (req, res) => {
+  const newUser = req.body;
+
+  db.run(
+    `INSERT INTO user ('username', 'email', 'age') VALUES (?, ?, ?)`,
+    [newUser.username, newUser.email, newUser.age],
+    function (err) {
+      if (err) {
+        console.log(err);
+        return;
+      }
+      console.log(this);
+
+      console.log(
+        `user with username '${newUser.username}' created, with id ${this.lastID}`,
+      );
+    },
+  );
+});
+
+//const db = new sqlite3.Database('./database.db');
 const port = 8001;
 
-app.get('/', (req, res) => {
-  res.sendFile(__dirname + '/index.html');
+app.listen(port, () => {
+  console.log(`Example app listening on port ${port}`);
+});
+
+app.get('/addUser', (req, res) => {
+  res.sendFile(__dirname + '/add-user.html');
 });
 
 app.get('/usersJson', (req, res) => {
@@ -15,6 +62,7 @@ app.get('/usersJson', (req, res) => {
 });
 
 const XLSX = require('xlsx');
+
 let lastId = 12;
 
 app.post('/usersXlsx', (req, res) => {
@@ -62,6 +110,7 @@ app.get('/usersXlsx', (req, res) => {
     res.sendStatus(500);
     return;
   }
+
   const firstSheetName = workbook.SheetNames[0];
   const firstSheet = workbook.Sheets[firstSheetName];
   const users = XLSX.utils.sheet_to_json(firstSheet, {range: 'B2:E14'});
@@ -90,10 +139,6 @@ app.post('/usersJson', (req, res) => {
       res.send(newUser);
     });
   });
-});
-
-app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`);
 });
 
 /*app.get('/users', (req, res) => {
