@@ -6,7 +6,7 @@ app.use(express.urlencoded({extended: true}));
 
 const sqlite3 = require('sqlite3').verbose();
 
-const db = new sqlite3.Database('./oumaima.db', err => {
+const db = new sqlite3.Database('./oumaima.db1', err => {
   if (err) {
     console.log(err);
     return;
@@ -21,10 +21,19 @@ db.run(
       console.log(err);
       return;
     }
-
     console.log('table crééer');
   },
 );
+
+app.get('/allusers', (req, res) => {
+  db.all(`SELECT * FROM user`, [], (err, rows) => {
+    if (err) {
+      console.error(err.message);
+      return;
+    }
+    res.json(rows);
+  });
+});
 
 app.post('/usersqllite3', (req, res) => {
   const newUser = req.body;
